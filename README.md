@@ -26,7 +26,8 @@ $> mkdir build && cd build
 $> cmake ..
 $> make
 $> ./environment
-```
+```  
+**Hint** to Ubuntu 16.04 users: in case of errors during building - install `libproj-dev` & `libopenni2-dev`.  
 
 ### Windows 
 
