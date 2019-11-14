@@ -1,4 +1,4 @@
-# Sensor Fusion Self-Driving Car Course
+# Sensor Fusion: Lidar  
 
 <img src="media/ObstacleDetectionFPS.gif" width="700" height="400" />
 
