@@ -59,3 +59,8 @@ NOTE: very old version
 [PCL Source Github](https://github.com/PointCloudLibrary/pcl)
 
 [PCL Mac Compilation Docs](http://www.pointclouds.org/documentation/tutorials/compiling_pcl_macosx.php)
+
+
+#### To do:  
+ - apply regression on final road points set to make segmentation more accurate;  
+ 
