@@ -62,5 +62,4 @@ NOTE: very old version
 
 
 #### To do:  
- - apply regression on final road points set to make segmentation more accurate;  
- 
+ - apply [regression](https://github.com/gasparian/Yandex_self-driving_meetup-2019_test/blob/master/detect_road_plane.cpp) on final road points set to make segmentation more accurate;  

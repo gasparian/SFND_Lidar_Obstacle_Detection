@@ -55,7 +55,6 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr CreateData3D()
 	return pointProcessor.loadPcd("../../../sensors/data/pcd/simpleHighway.pcd");
 }
 
-
 pcl::visualization::PCLVisualizer::Ptr initScene()
 {
 	pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer ("2D Viewer"));
@@ -66,6 +65,7 @@ pcl::visualization::PCLVisualizer::Ptr initScene()
   	return viewer;
 }
 
+// https://brilliant.org/wiki/dot-product-distance-between-point-and-a-line/
 std::unordered_set<int> Ransac2D(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int maxIterations, float distanceTol)
 {
 	auto startTime = std::chrono::steady_clock::now();
@@ -122,6 +122,7 @@ std::unordered_set<int> Ransac2D(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int 
 
 }
 
+// http://tutorial.math.lamar.edu/Classes/CalcII/EqnsOfPlanes.aspx
 std::unordered_set<int> Ransac(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int maxIterations, float distanceTol)
 {
 	auto startTime = std::chrono::steady_clock::now();
