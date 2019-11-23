@@ -166,6 +166,77 @@ Box ProcessPointClouds<PointT>::BoundingBox(typename pcl::PointCloud<PointT>::Pt
     return box;
 }
 
+template<typename PointT>
+BoxQ ProcessPointClouds<PointT>::BoundingBoxQ(typename pcl::PointCloud<PointT>::Ptr cluster)
+{
+    // Get extremums of original cloud
+    PointT _minPoint, _maxPoint;
+    pcl::getMinMax3D(*cluster, _minPoint, _maxPoint);
+    float origHeight = _maxPoint.z - _minPoint.z;
+
+    // Create copy of original cloud with z = 0.0;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr clusterFilt (new pcl::PointCloud<pcl::PointXYZ>);
+    for (PointT point : cluster->points) {
+        clusterFilt->points.push_back({point.x, point.y, 0.0f});
+    }
+
+    //////////////////////////
+    // http://codextechnicanum.blogspot.com/2015/04/find-minimum-oriented-bounding-box-of.html 
+    // Compute principal directions
+    Eigen::Vector4f pcaCentroid;
+    pcl::compute3DCentroid(*clusterFilt, pcaCentroid);
+    Eigen::Matrix3f covariance;
+    computeCovarianceMatrixNormalized(*clusterFilt, pcaCentroid, covariance);
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> eigen_solver(covariance, Eigen::ComputeEigenvectors);
+    Eigen::Matrix3f eigenVectorsPCA = eigen_solver.eigenvectors();
+    eigenVectorsPCA.col(2) = eigenVectorsPCA.col(0).cross(eigenVectorsPCA.col(1));
+
+    // Transform the original cloud to the origin where the principal components correspond to the axes.
+    Eigen::Matrix4f projectionTransform(Eigen::Matrix4f::Identity());
+    projectionTransform.block<3,3>(0,0) = eigenVectorsPCA.transpose();
+    projectionTransform.block<3,1>(0,3) = -1.f * (projectionTransform.block<3,3>(0,0) * pcaCentroid.head<3>());
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloudPointsProjected (new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::transformPointCloud(*clusterFilt, *cloudPointsProjected, projectionTransform);
+    // Get the minimum and maximum points of the transformed cloud.
+    pcl::PointXYZ minPoint, maxPoint;
+    pcl::getMinMax3D(*cloudPointsProjected, minPoint, maxPoint);
+    const Eigen::Vector3f meanDiagonal = 0.5f*(maxPoint.getVector3fMap() + minPoint.getVector3fMap());
+
+    // Final transform
+    Eigen::Vector3f bboxTransform = eigenVectorsPCA * meanDiagonal + pcaCentroid.head<3>();
+
+    Eigen::Quaternionf bboxQuaternion(eigenVectorsPCA); //Quaternions are a way to do rotations https://www.youtube.com/watch?v=mHVwd8gYLnI
+
+    //////////////////////////
+
+    // Debug
+    // std::cerr << "Q coefs: (x, y, z, w) " << bboxQuaternion.coeffs() << std::endl;
+    // std::cerr << "Euler: " << euler[0] << "; " << euler[1] << "; " << euler[2] << std::endl;
+
+    BoxQ box;
+    // Replace Z translation with z coords from original cloud
+    bboxTransform[2] = 0.5f * (_maxPoint.z + _minPoint.z);
+    box.bboxTransform = bboxTransform;
+	box.bboxQuaternion = bboxQuaternion;
+
+	box.cube_length = maxPoint.x - minPoint.x;
+    box.cube_width = maxPoint.y - minPoint.y;
+    box.cube_height = maxPoint.z - minPoint.z;
+
+    if (box.cube_length == 0) {
+        box.cube_length = origHeight;
+    } else if (box.cube_width == 0) {
+        box.cube_width = origHeight;
+    } else {
+        box.cube_height = origHeight;
+    }
+
+    // Debug
+    // std::cerr << "Box L-W-H: " << box.cube_length << "; " << box.cube_width << "; " << box.cube_height << std::endl;
+
+    return box;
+}
+
 
 template<typename PointT>
 void ProcessPointClouds<PointT>::savePcd(typename pcl::PointCloud<PointT>::Ptr cloud, std::string file)
