@@ -1,4 +1,4 @@
-# Sensor Fusion: Lidar  
+# Lidar obstacle detection with [PCL](https://github.com/PointCloudLibrary/pcl)  
 
 <img src="media/ObstacleDetectionFPS.gif" width="700" height="400" />
 
