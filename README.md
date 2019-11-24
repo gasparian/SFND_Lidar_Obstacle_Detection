@@ -62,4 +62,7 @@ NOTE: very old version
 
 
 #### To do:  
+ - add median balancing at KD-tree growing step;  
  - apply [regression](https://github.com/gasparian/Yandex_self-driving_meetup-2019_test/blob/master/detect_road_plane.cpp) on final road points set to make segmentation more accurate;  
+ - additional challenge: detect/track a bicyclist riding in front of the car, along with detecting/tracking the other surrounding obstacles in the scene, using the data at: `src/sensors/data/pcd/data_2`;  
+
