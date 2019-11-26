@@ -152,27 +152,27 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
 
     // Point processor for clustering
     // std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor->Clustering(segmentCloud.first, 0.7, 8, 800);
-    // std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor->ClusteringCustom(segmentCloud.first, 0.7, 8, 800);
+    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor->ClusteringCustom(segmentCloud.first, 0.7, 8, 800);
 
-    // int clusterId = 0, colorId = 0;
-    // std::vector<Color> colors = {Color(1,0,0), Color(1,1,0), Color(0,0,1), Color(0,1,1)};
+    int clusterId = 0, colorId = 0;
+    std::vector<Color> colors = {Color(1,0,0), Color(1,1,0), Color(0,0,1), Color(0,1,1)};
 
-    // for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : cloudClusters)
-    // {
-    //     if (colorId > colors.size())
-    //         colorId = 0;
+    for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : cloudClusters)
+    {
+        if (colorId > colors.size())
+            colorId = 0;
 
-    //     std::cout << "cluster size ";
-    //     pointProcessor->numPoints(cluster);
-    //     renderPointCloud(viewer,cluster,"obstCloud"+std::to_string(clusterId), colors[colorId]);
+        std::cout << "cluster size ";
+        pointProcessor->numPoints(cluster);
+        renderPointCloud(viewer,cluster,"obstCloud"+std::to_string(clusterId), colors[colorId]);
 
-    //     Box box = pointProcessor->BoundingBox(cluster); // boxes without rotation
-    //     // BoxQ box = pointProcessor->BoundingBoxQ(cluster);
-    //     renderBox(viewer, box, clusterId);
+        Box box = pointProcessor->BoundingBox(cluster); // boxes without rotation
+        // BoxQ box = pointProcessor->BoundingBoxQ(cluster);
+        renderBox(viewer, box, clusterId);
 
-    //     ++clusterId;
-    //     ++colorId;
-    // }
+        ++clusterId;
+        ++colorId;
+    }
 }
 
 

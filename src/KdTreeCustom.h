@@ -1,8 +1,6 @@
-/* \author Aaron Brown */
-// Quiz on implementing kd tree
-
-// #include <algorithm> 
-// #include "../../render/render.h"
+#include <set>
+#include <vector>
+#include <algorithm>
 
 // Structure to represent node of kd tree
 struct Node
@@ -83,6 +81,5 @@ struct KdTree
 		searchHelper(root, target, distanceTol, 0, ids);
 		return ids;
 	}
-	
 
 };

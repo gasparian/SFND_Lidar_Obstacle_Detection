@@ -22,7 +22,7 @@
 #include <unordered_set>
 #include <algorithm>
 #include "render/box.h"
-#include "EuclidianClusterCustom.h"
+
 
 template<typename PointT>
 class ProcessPointClouds {
@@ -58,4 +58,5 @@ public:
     std::vector<boost::filesystem::path> streamPcd(std::string dataPath);
   
 };
+
 #endif /* PROCESSPOINTCLOUDS_H_ */
