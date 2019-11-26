@@ -5,6 +5,9 @@
 #include "../../render/box.h"
 #include <chrono>
 #include <string>
+#include <algorithm>
+#include <numeric>      // std::iota
+#include <functional>   // std::bind
 #include "kdtree.h"
 
 // Arguments:
@@ -109,6 +112,19 @@ std::vector<std::vector<int>> euclideanCluster(const std::vector<std::vector<flo
 
 }
 
+std::vector<uint> sort_indexes(std::vector<std::vector<float>> &v, uint axis) {
+
+  // initialize original index locations
+  std::vector<uint> idx(v.size());
+  std::iota(idx.begin(), idx.end(), 0);
+
+  // sort indexes based on comparing values in v
+  std::sort(idx.begin(), idx.end(),
+            [&v, axis](uint i1, uint i2) {return v[i1][axis] < v[i2][axis];});
+
+  return idx;
+}
+
 int main ()
 {
 
@@ -132,8 +148,12 @@ int main ()
     for (int i=0; i<points.size(); i++) 
     	tree->insert(tree->root, points[i], i, 0); 
 
+	// for (int i=0; i<points.size(); i++) {
+    // 	tree->insert(tree->root, points, 0); 
+	// }
+
   	int it = 0;
-  	render2DTree(tree->root,viewer,window, it);   
+  	render2DTree(tree->root, viewer, window, it);   
   
   	std::cout << "Test Search" << std::endl;
   	std::vector<int> nearby = tree->search({-6,7},3.0);
