@@ -107,10 +107,9 @@ std::vector<std::vector<int>> euclideanCluster(const std::vector<std::vector<flo
 			clusters.push_back(cluster);
 		}
 	}
-
 	return clusters;
-
 }
+
 
 std::vector<uint> sort_indexes(std::vector<std::vector<float>> &v, uint axis) {
 
@@ -143,14 +142,20 @@ int main ()
 	//std::vector<std::vector<float>> points = { {-6.2,7}, {-6.3,8.4}, {-5.2,7.1}, {-5.7,6.3} };
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = CreateData(points);
 
+	// add a index to the vector of points to build a tree
+	std::vector<std::pair<int, std::vector<float>>> pointsIdx(points.size());
+	for (int i = 0; i < points.size(); ++i) { 
+        pointsIdx[i] = std::make_pair(i, points[i]); 
+    } 
+
 	KdTree* tree = new KdTree;
   
-    for (int i=0; i<points.size(); i++) 
-    	tree->insert(tree->root, points[i], i, 0); 
+    // for (int i=0; i<points.size(); i++) 
+    // 	tree->insert(tree->root, points[i], i, 0); 
 
-	// for (int i=0; i<points.size(); i++) {
-    // 	tree->insert(tree->root, points, 0); 
-	// }
+    tree->insert(tree->root, pointsIdx, 0); 
+
+	std::cout << "inserted!" << std::endl;
 
   	int it = 0;
   	render2DTree(tree->root, viewer, window, it);   
@@ -159,13 +164,15 @@ int main ()
   	std::vector<int> nearby = tree->search({-6,7},3.0);
   	for(int index : nearby)
       std::cout << index << ",";
-  	std::cout << std::endl;
+	std::cout << std::endl;
+
+	// renderPointCloud(viewer, cloud,"data");
 
   	// Time segmentation process
   	auto startTime = std::chrono::steady_clock::now();
-  	//
+  	
   	std::vector<std::vector<int>> clusters = euclideanCluster(points, tree, 3.0);
-  	//
+  	
   	auto endTime = std::chrono::steady_clock::now();
   	auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
   	std::cout << "clustering found " << clusters.size() << " and took " << elapsedTime.count() << " milliseconds" << std::endl;
