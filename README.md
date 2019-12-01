@@ -54,15 +54,13 @@ http://www.pointclouds.org/downloads/windows.html
 http://www.pointclouds.org/downloads/macosx.html  
 NOTE: very old version 
 
-#### Build from Source
+#### Build from Source  
 
 [PCL Source Github](https://github.com/PointCloudLibrary/pcl)
 
-[PCL Mac Compilation Docs](http://www.pointclouds.org/documentation/tutorials/compiling_pcl_macosx.php)
+[PCL Mac Compilation Docs](http://www.pointclouds.org/documentation/tutorials/compiling_pcl_macosx.php)  
 
-
-#### To do:  
-- add median balancing at KD-tree growing step (sinply sort input arrays every time);  
-- apply [regression](https://github.com/gasparian/Yandex_self-driving_meetup-2019_test/blob/master/detect_road_plane.cpp) on final road points set to make segmentation more accurate;  
+### To do:  
+- try to set mix/max cluster size boundaries inside `euclideanClusterCustom`;  
 - additional challenge: detect/track a bicyclist riding in front of the car, along with detecting/tracking the other surrounding obstacles in the scene, using the data at: `src/sensors/data/pcd/data_2`;  
 

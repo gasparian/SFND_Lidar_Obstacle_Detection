@@ -267,7 +267,7 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
         for (int index : getIndeces.indices)
             cloud_cluster->points.push_back(cloud->points[index]);
 
-        cloud_cluster->width = cloud_cluster->points.size ();
+        cloud_cluster->width = cloud_cluster->points.size();
         cloud_cluster->height = 1;
         cloud_cluster->is_dense = true;
 
@@ -282,7 +282,7 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
 }
 
 template<typename PointT>
-std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::ClusteringCustom(typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance, int minSize, int maxSize)
+std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::ClusteringCustom(typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance, int minSize, int maxSize, bool medianBalancing)
 {
     // Time clustering process
     auto startTime = std::chrono::steady_clock::now();
@@ -290,16 +290,32 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
     std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters;
 
     KdTree* tree = new KdTree;
-    for (int i=0; i < cloud->points.size(); i++) {
-        std::vector<float> point = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
-    	tree->insert(tree->root, point, i, 0); 
+
+    if ( medianBalancing ) {
+
+        // Median balanced KD-tree
+        // add a index to the vector of points to build a tree
+        std::vector<std::pair<int, std::vector<float>>> pointsIdx(cloud->points.size());
+        for (int i = 0; i < cloud->points.size(); ++i) { 
+            std::vector<float> point = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
+            pointsIdx[i] = std::make_pair(i, point);
+        } 
+        tree->insertBalanced(tree->root, pointsIdx, 0); 
+
+    } else {
+        
+        // KD-tree
+        for (int i=0; i < cloud->points.size(); i++) {
+            std::vector<float> point = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
+            tree->insert(tree->root, point, i, 0); 
+        }
     }
 
-    std::vector<std::vector<int>> estimatedClusters = euclideanClusterCustom(cloud, tree, clusterTolerance);
+    std::vector<std::vector<int>> estimatedClusters = euclideanClusterCustom(cloud, tree, clusterTolerance, maxSize);
   	for(std::vector<int> cluster : estimatedClusters)
   	{
         int clusterSize = cluster.size();
-        if ((clusterSize <= maxSize) && (clusterSize >= minSize)) {
+        if ( clusterSize >= minSize ) {
             typename pcl::PointCloud<PointT>::Ptr clusterCloud(new pcl::PointCloud<PointT>);
             for (int indice: cluster)
                 clusterCloud->points.push_back(cloud->points[indice]);
@@ -336,6 +352,10 @@ Box ProcessPointClouds<PointT>::BoundingBox(typename pcl::PointCloud<PointT>::Pt
     box.y_max = maxPoint.y;
     box.z_max = maxPoint.z;
 
+    box.cube_length = maxPoint.x - minPoint.x;
+    box.cube_width = maxPoint.y - minPoint.y;
+    box.cube_height = maxPoint.z - minPoint.z;
+
     return box;
 }
 
@@ -355,6 +375,7 @@ BoxQ ProcessPointClouds<PointT>::BoundingBoxQ(typename pcl::PointCloud<PointT>::
 
     //////////////////////////
     // http://codextechnicanum.blogspot.com/2015/04/find-minimum-oriented-bounding-box-of.html 
+    // https://www.youtube.com/watch?v=mHVwd8gYLnI
     // Compute principal directions
     Eigen::Vector4f pcaCentroid;
     pcl::compute3DCentroid(*clusterFilt, pcaCentroid);
@@ -378,13 +399,9 @@ BoxQ ProcessPointClouds<PointT>::BoundingBoxQ(typename pcl::PointCloud<PointT>::
     // Final transform
     Eigen::Vector3f bboxTransform = eigenVectorsPCA * meanDiagonal + pcaCentroid.head<3>();
 
-    Eigen::Quaternionf bboxQuaternion(eigenVectorsPCA); //Quaternions are a way to do rotations https://www.youtube.com/watch?v=mHVwd8gYLnI
+    Eigen::Quaternionf bboxQuaternion(eigenVectorsPCA);
 
     //////////////////////////
-
-    // Debug
-    // std::cerr << "Q coefs: (x, y, z, w) " << bboxQuaternion.coeffs() << std::endl;
-    // std::cerr << "Euler: " << euler[0] << "; " << euler[1] << "; " << euler[2] << std::endl;
 
     BoxQ box;
     // Replace Z translation with z coords from original cloud
@@ -403,9 +420,6 @@ BoxQ ProcessPointClouds<PointT>::BoundingBoxQ(typename pcl::PointCloud<PointT>::
     } else {
         box.cube_height = origHeight;
     }
-
-    // Debug
-    // std::cerr << "Box L-W-H: " << box.cube_length << "; " << box.cube_width << "; " << box.cube_height << std::endl;
 
     return box;
 }

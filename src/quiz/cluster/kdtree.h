@@ -19,7 +19,6 @@ struct Node
 struct KdTree
 {
 	Node* root;
-	std::vector<int> indeces;
 
 	KdTree() : root(NULL) {}
 

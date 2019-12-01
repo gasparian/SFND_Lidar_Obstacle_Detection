@@ -41,6 +41,30 @@ struct KdTree
 
 	}
 
+	void insertBalanced(Node *&node, std::vector<std::pair<int, std::vector<float>>> points, int depth)
+	{	
+		int N = points.size();
+		int id = N / 2;
+		if (N == 2) id = 0;
+
+		if ( N > 0 ) {
+			uint k = points[0].second.size();
+			uint axis = depth % k; 
+
+			// sort the points in ascending order
+			std::sort(points.begin(), points.end(),
+            		  [axis](std::pair<int, std::vector<float>> el1, std::pair<int, std::vector<float>> el2) {return el1.second[axis] < el2.second[axis];});
+
+			node = new Node(points[id].second, points[id].first);
+
+			std::vector<std::pair<int, std::vector<float>>> left_points(points.begin(), points.begin()+id);
+			std::vector<std::pair<int, std::vector<float>>> right_points(points.begin()+id+1, points.end());
+
+			insertBalanced(node->left, left_points, ++depth);
+			insertBalanced(node->right, right_points, ++depth);
+		}
+	}
+
 	// get the l2 distance between N-dim vectors
 	float get_dist(std::vector<float>& target, std::vector<float>& point) {
 		float dist = 0.0;
@@ -68,7 +92,7 @@ struct KdTree
 			if ( (target[depth%k] - distanceTol) < node->point[depth%k] )
 				searchHelper(node->left, target, distanceTol, ++depth, ids);
 
-			if ( (target[depth%k] + distanceTol) > node->point[depth%k] )
+			if ( (target[depth%k] + distanceTol) >= node->point[depth%k] )
 				searchHelper(node->right, target, distanceTol, ++depth, ids);
 		}
 	}
