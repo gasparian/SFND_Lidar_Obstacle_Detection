@@ -6,8 +6,12 @@
 
 **Radar** data is typically very sparse and in a limited range, however it can directly tell us how fast an object is moving in a certain direction. This ability makes radars a very pratical sensor for doing things like cruise control where its important to know how fast the car infront of you is traveling. Radar sensors are also very affordable and common now of days in newer cars.
 
-**Sensor Fusion** by combing lidar's high resoultion imaging with radar's ability to measure velocity of objects we can get a better understanding of the sorrounding environment than we could using one of the sensors alone.
+**Sensor Fusion** by combing lidar's high resoultion imaging with radar's ability to measure velocity of objects we can get a better understanding of the sorrounding environment than we could using one of the sensors alone.  
 
+**This repo contains:**  
+ - custom implementation of the ransac algorithm for road plane segmentation and kd-tree for euclidian clustering of obstacles;  
+ - code for Lidar simlutation;  
+ - code for real lidar point cloud streaming and viewing;  
 
 ## PCL Installation  
 
@@ -61,6 +65,5 @@ NOTE: very old version
 [PCL Mac Compilation Docs](http://www.pointclouds.org/documentation/tutorials/compiling_pcl_macosx.php)  
 
 ### To do:  
-- check the kd-tree code;  
 - additional challenge: detect/track a bicyclist riding in front of the car, along with detecting/tracking the other surrounding obstacles in the scene, using the data at: `src/sensors/data/pcd/data_2`;  
 

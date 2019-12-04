@@ -198,7 +198,7 @@ int main ()
 	pcl::visualization::PCLVisualizer::Ptr viewer = initScene();
 
 	// Create data
-	// TODO: Change the max iteration and distance tolerance arguments for Ransac function
+	// Change the max iteration and distance tolerance arguments for Ransac function
 	// pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = CreateData();
 	// std::unordered_set<int> inliers = Ransac2D(cloud, 50, 0.5);
 

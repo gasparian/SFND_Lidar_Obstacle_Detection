@@ -31,7 +31,7 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
     typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT> ());
     typename pcl::PointCloud<PointT>::Ptr cloudCropped (new pcl::PointCloud<PointT> ());
 
-    // TODO:: Fill in the function to do voxel grid point reduction and region based filtering
+    // Fill in the function to do voxel grid point reduction and region based filtering
     // Create the filtering object
     pcl::VoxelGrid<PointT> sor;
     sor.setInputCloud(cloud);
@@ -88,7 +88,7 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
 template<typename PointT>
 std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SeparateClouds(pcl::PointIndices::Ptr inliers, typename pcl::PointCloud<PointT>::Ptr cloud) 
 {
-    // TODO: Create two new point clouds, one cloud with obstacles and other with segmented plane
+    // Create two new point clouds, one cloud with obstacles and other with segmented plane
     typename pcl::PointCloud<PointT>::Ptr planeCloud (new pcl::PointCloud<PointT>), obstCloud (new pcl::PointCloud<PointT>);
     // Extract the inliers
 
@@ -121,7 +121,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     pcl::PointIndices::Ptr inliers (new pcl::PointIndices ());
     pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
 
-    // TODO:: Fill in this function to find inliers for the cloud.
+    // Fill in this function to find inliers for the cloud.
     // Optional
     seg.setOptimizeCoefficients (true);
     // Mandatory
@@ -255,7 +255,7 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
 
     std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters;
 
-    // TODO:: Fill in the function to perform euclidean clustering to group detected obstacles
+    // Fill in the function to perform euclidean clustering to group detected obstacles
     // Creating the KdTree object for the search method of the extraction
     typename pcl::search::KdTree<PointT>::Ptr tree (new pcl::search::KdTree<PointT>);
     tree->setInputCloud(cloud);

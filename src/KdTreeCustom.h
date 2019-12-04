@@ -24,7 +24,7 @@ struct KdTree
 
 	void insert(Node *&node, std::vector<float> point, int id, int depth)
 	{
-		// TODO: Fill in this function to insert a new point into the tree
+		// Fill in this function to insert a new point into the tree
 		// the function should create a new node and place correctly with in the root 
 		uint k = point.size();
 		uint axis = depth % k; 
