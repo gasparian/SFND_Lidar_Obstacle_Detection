@@ -313,7 +313,6 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
         tree->insertBalanced(tree->root, pointsIdx, 0); 
 
     } else {
-        
         // KD-tree
         for (int i=0; i < cloud->points.size(); i++) {
             std::vector<float> point = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};

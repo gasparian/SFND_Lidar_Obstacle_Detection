@@ -22,50 +22,50 @@ struct KdTree
 
 	KdTree() : root(NULL) {}
 
-	// void insert(Node *&node, std::vector<float> point, int id, int depth)
-	// {
-	// 	// TODO: Fill in this function to insert a new point into the tree
-	// 	// the function should create a new node and place correctly with in the root 
-	// 	uint k = point.size();
-	// 	uint axis = depth % k; 
+	void insert(Node *&node, std::vector<float> point, int id, int depth)
+	{
+		// TODO: Fill in this function to insert a new point into the tree
+		// the function should create a new node and place correctly with in the root 
+		uint k = point.size();
+		uint axis = depth % k; 
 
-	// 	if (node == NULL) { 
-	// 		node = new Node(point, id);
-	// 	}
-	// 	else if (point[axis] < node->point[axis]) { 
-	// 		insert(node->left, point, id, ++depth);
-	// 	}
-	// 	else {
-	// 		insert(node->right, point, id, ++depth);
-	// 	}
-
-	// }
-
-	void insert(Node *&node, std::vector<std::pair<int, std::vector<float>>> points, int depth)
-	{	
-		int N = points.size();
-		int id = N / 2;
-		if (N == 2) id = 0;
-
-		if ( N > 0 ) {
-			uint k = points[0].second.size();
-			uint axis = depth % k; 
-
-			// sort the points in ascending order
-			std::sort(points.begin(), points.end(),
-            		  [axis](std::pair<int, std::vector<float>> el1, std::pair<int, std::vector<float>> el2) {return el1.second[axis] < el2.second[axis];});
-
-			node = new Node(points[id].second, points[id].first);
-
-			std::vector<std::pair<int, std::vector<float>>> left_points(points.begin(), points.begin()+id);
-			std::vector<std::pair<int, std::vector<float>>> right_points(points.begin()+id+1, points.end());
-
-			std::cout << "id: " << points[id].first << "; Coords: " << points[id].second[0] << ", " << points[id].second[1] << "; Left: " <<  left_points.size() << "; Right: " << right_points.size() << std::endl;
-
-			insert(node->left, left_points, ++depth);
-			insert(node->right, right_points, ++depth);
+		if (node == NULL) { 
+			node = new Node(point, id);
 		}
+		else if (point[axis] < node->point[axis]) { 
+			insert(node->left, point, id, ++depth);
+		}
+		else {
+			insert(node->right, point, id, ++depth);
+		}
+
 	}
+
+	// void insert(Node *&node, std::vector<std::pair<int, std::vector<float>>> points, int depth)
+	// {	
+	// 	int N = points.size();
+	// 	int id = N / 2;
+	// 	if (N == 2) id = 0;
+
+	// 	if ( N > 0 ) {
+	// 		uint k = points[0].second.size();
+	// 		uint axis = depth % k; 
+
+	// 		// sort the points in ascending order
+	// 		std::sort(points.begin(), points.end(),
+    //         		  [axis](std::pair<int, std::vector<float>> el1, std::pair<int, std::vector<float>> el2) {return el1.second[axis] < el2.second[axis];});
+
+	// 		node = new Node(points[id].second, points[id].first);
+
+	// 		std::vector<std::pair<int, std::vector<float>>> left_points(points.begin(), points.begin()+id);
+	// 		std::vector<std::pair<int, std::vector<float>>> right_points(points.begin()+id+1, points.end());
+
+	// 		std::cout << "id: " << points[id].first << "; Coords: " << points[id].second[0] << ", " << points[id].second[1] << "; Left: " <<  left_points.size() << "; Right: " << right_points.size() << std::endl;
+
+	// 		insert(node->left, left_points, ++depth);
+	// 		insert(node->right, right_points, ++depth);
+	// 	}
+	// }
 
 	// get the l2 distance between N-dim vectors
 	float get_dist(std::vector<float>& target, std::vector<float>& point) {
