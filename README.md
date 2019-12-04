@@ -61,6 +61,6 @@ NOTE: very old version
 [PCL Mac Compilation Docs](http://www.pointclouds.org/documentation/tutorials/compiling_pcl_macosx.php)  
 
 ### To do:  
-- try to set mix/max cluster size boundaries inside `euclideanClusterCustom`;  
+- check the kd-tree code;  
 - additional challenge: detect/track a bicyclist riding in front of the car, along with detecting/tracking the other surrounding obstacles in the scene, using the data at: `src/sensors/data/pcd/data_2`;  
 

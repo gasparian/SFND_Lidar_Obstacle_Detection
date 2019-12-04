@@ -133,7 +133,7 @@ void cityBlockFrame(pcl::visualization::PCLVisualizer::Ptr& viewer)
 void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointClouds<pcl::PointXYZI>* pointProcessorI, const pcl::PointCloud<pcl::PointXYZI>::Ptr& inputCloud) {
 
     // Experiment with the ? values and find what works best
-    float filterRes = 0.25; // default = 0.01, m.
+    float filterRes = 0.3; // default = 0.01, m.
     float minDistance = 1.5; // to filter points from car's roof, m.; works only on `manual filtering mode`
     Eigen::Vector4f minPoint(-20, -6, -2, 1); 
     Eigen::Vector4f maxPoint(20, 6, 5, 1); 
@@ -144,15 +144,22 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
 
     // Cloud segmentation
     ProcessPointClouds<pcl::PointXYZI> *pointProcessor = new ProcessPointClouds<pcl::PointXYZI>();
+
     // std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentCloud = pointProcessor->SegmentPlane(filterCloud, 30, 0.25);
-    std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentCloud = pointProcessor->SegmentPlaneCustom(filterCloud, 50, 0.25);
+
+    // maxIters could be `-1` - then the number of iterations estimated automatically
+    std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentCloud = pointProcessor->SegmentPlaneCustom(filterCloud, 40, 0.25, true);
 
     renderPointCloud(viewer, segmentCloud.first, "obstCloud", Color(1,0,0));
     renderPointCloud(viewer, segmentCloud.second, "planeCloud", Color(0,1,0));
 
+    std::cout << "Plane points: " << segmentCloud.second->points.size() << ", out of total: " << filterCloud->points.size() << std::endl;
+
     // Point processor for clustering
     // std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor->Clustering(segmentCloud.first, 0.7, 10, 500);
-    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor->ClusteringCustom(segmentCloud.first, 0.55, 10, 400, false);
+
+    // the last argument turns on/off median balancing of kd-tree
+    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor->ClusteringCustom(segmentCloud.first, 1.0, 20, 500, false);
 
     int clusterId = 0, colorId = 0;
     std::vector<Color> colors = {Color(1,0,0), Color(1,1,0), Color(0,0,1), Color(0,1,1)};
@@ -162,17 +169,18 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
         if (colorId > colors.size())
             colorId = 0;
 
+        std::cout << "cluster size ";
+        pointProcessor->numPoints(cluster);
+
         Box box = pointProcessor->BoundingBox(cluster); // boxes without rotation
         // BoxQ box = pointProcessor->BoundingBoxQ(cluster);
 
-        if ( ((box.cube_length > 0.8) && (box.cube_width > 0.8) && (box.cube_height > 0.5)) 
-             && ((box.cube_length < 6.0) && (box.cube_width < 6.0) && (box.cube_height < 4.0)) ) 
+        if (
+            ((box.cube_length > 0.8) && (box.cube_width > 0.8) && (box.cube_height > 0.4)) && 
+            ((box.cube_length < 6.0) && (box.cube_width < 6.0) && (box.cube_height < 5.0)) 
+           ) 
         {
-
             // renderPointCloud(viewer, cluster, "obstCloud"+std::to_string(clusterId), colors[colorId]);
-            std::cout << "cluster size ";
-            pointProcessor->numPoints(cluster);
-
             renderBox(viewer, box, clusterId);
         }
         ++clusterId;
@@ -237,6 +245,6 @@ int main (int argc, char** argv)
         if(streamIterator == stream.end())
             streamIterator = stream.begin();
 
-        viewer->spinOnce(50); // argument is a wait time in ms.
+        viewer->spinOnce(100); // argument is a wait time in ms.
     } 
 }

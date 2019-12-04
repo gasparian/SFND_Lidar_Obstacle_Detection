@@ -85,9 +85,14 @@ struct KdTree
 
 		uint k = target.size();
 		if (node != NULL) {
-			float dist = get_dist(target, node->point);
-			if (dist <= distanceTol)
-				ids.push_back(node->id);
+			if ( (node->point[0]>=(target[0]-distanceTol)&&(node->point[0]<=(target[0]+distanceTol))) &&
+			     (node->point[1]>=(target[1]-distanceTol)&&(node->point[1]<=(target[1]+distanceTol))) &&
+				 (node->point[2]>=(target[2]-distanceTol)&&(node->point[2]<=(target[2]+distanceTol))) ) {
+					 
+				float dist = get_dist(target, node->point);
+				if (dist <= distanceTol)
+					ids.push_back(node->id);
+			}
 			
 			if ( (target[depth%k] - distanceTol) < node->point[depth%k] )
 				searchHelper(node->left, target, distanceTol, ++depth, ids);

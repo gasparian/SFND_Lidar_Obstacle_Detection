@@ -2,6 +2,7 @@
 
 #include "processPointClouds.h"
 #include "EuclideanClusteringCustom.h"
+#include "PlaneFittingCustom.h"
 
 //constructor:
 template<typename PointT>
@@ -146,10 +147,18 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 }
 
 template<typename PointT>
-std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SegmentPlaneCustom(typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations, float distanceThreshold)
+std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SegmentPlaneCustom(typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations, float distanceThreshold, bool finalFitting)
 {
     // Time segmentation process
     auto startTime = std::chrono::steady_clock::now();
+
+    if ( maxIterations < 0 ) {
+        // https://en.wikipedia.org/wiki/Random_sample_consensus#Parameters
+        // w = inliers / all_opints
+        float w_n = 0.6 * 0.6 * 0.6; // probability that all three points are inliers
+        float p = 0.99; //  desired probability
+        maxIterations = std::log(1 - p) / std::log(1 - w_n) + 1;
+    }
 
     std::unordered_set<int> inliersResult;
 	float A, B, C, D;
@@ -159,7 +168,6 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 
 	const int N = cloud->points.size();
 	int maxx = -1;
-	float dist;
 	
 	// For max iterations 
 	// Randomly sample subset and fit line
@@ -177,7 +185,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 			uniques.insert(idx);
         }
 
-		// Fit the line Ax + By + Cz + D = 0
+		// Fit the plane Ax + By + Cz + D = 0
 		x1 = chosen[1].x - chosen[0].x; // _x2 - _x1
 		y1 = chosen[1].y - chosen[0].y; // _y2 - _y1
 		z1 = chosen[1].z - chosen[0].z; // _z2 - _z1
@@ -193,13 +201,8 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 
 		// Measure distance between every point and fitted line
 		// If distance is smaller than threshold count it as inlier
-        for (int j = 0; j < N; ++j) {
-			dist = std::abs(A * cloud->points[j].x + B * cloud->points[j].y + C * cloud->points[j].z + D);
-			dist /= std::sqrt(A * A + B * B + C * C); 
-            if (dist <= distanceThreshold) {
-                closest.insert(j);
-            }
-        }
+        std::vector<float> coefs = {A, B, C, D};
+        fill_inliers(cloud, coefs, closest, distanceThreshold);
 
         if (inliersResult.size() < closest.size()) {
             inliersResult = closest;
@@ -210,6 +213,13 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     {
       std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
     } 
+
+    if ( finalFitting ) {
+        // final plane fitting using ordinary regression on inliers list
+        std::vector<float> coefs = get_coefs(cloud, inliersResult);
+        std::unordered_set<int> inliersResult;
+        fill_inliers(cloud, coefs, inliersResult, distanceThreshold);
+    }
 
     std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> segResult;
 
