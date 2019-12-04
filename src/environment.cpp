@@ -159,7 +159,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
     // std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor->Clustering(segmentCloud.first, 0.7, 10, 500);
 
     // the last argument turns on/off median balancing of kd-tree
-    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor->ClusteringCustom(segmentCloud.first, 0.9, 20, 500, false);
+    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor->ClusteringCustom(segmentCloud.first, 0.9, 20, 500, false); // 0.5; 10; 140
 
     int clusterId = 0, colorId = 0;
     std::vector<Color> colors = {Color(1,1,0), Color(0,0,1), Color(0,1,1)};

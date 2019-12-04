@@ -1,6 +1,6 @@
 #include "EuclideanClusteringCustom.h"
 
-void Proximity(int idx, pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, std::vector<bool> &processed, KdTree *tree, float& distanceTol, std::vector<int> &cluster, int maxSize) 
+void Proximity(int idx, pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, std::vector<bool> &processed, KdTree *tree, float& distanceTol, std::vector<int> &cluster) 
 {
 
 	processed[idx] = true;
@@ -10,16 +10,14 @@ void Proximity(int idx, pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, std::vector<
 	std::vector<int> nearby = tree->search(point, distanceTol);
 	
 	for (int nIdx : nearby) {
-		if ( (!processed[nIdx]) && (cluster.size() < maxSize) ) {
-			Proximity(nIdx, cloud, processed, tree, distanceTol, cluster, maxSize);
+		if ( !processed[nIdx] ) {
+			Proximity(nIdx, cloud, processed, tree, distanceTol, cluster);
 		}
 	}
 }
 
-std::vector<std::vector<int>> euclideanClusterCustom(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, KdTree* tree, float distanceTol, int maxSize)
+std::vector<std::vector<int>> euclideanClusterCustom(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, KdTree* tree, float distanceTol, int maxSize, int minSize)
 {
-
-	// TODO: Fill out this function to return list of indices for each cluster
 
 	std::vector<std::vector<int>> clusters;
 	std::vector<bool> processed(cloud->points.size(), false);
@@ -27,8 +25,9 @@ std::vector<std::vector<int>> euclideanClusterCustom(pcl::PointCloud<pcl::PointX
 	for (int idx=0; idx < cloud->points.size(); idx++) {
 		if ( !processed[idx] ) {
 			std::vector<int> cluster;
-			Proximity(idx, cloud, processed, tree, distanceTol, cluster, maxSize);
-			clusters.push_back(cluster);
+			Proximity(idx, cloud, processed, tree, distanceTol, cluster);
+			if ( cluster.size() >= minSize && cluster.size() <= maxSize )
+				clusters.push_back(cluster);
 		}
 	}
 

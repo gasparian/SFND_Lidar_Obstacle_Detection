@@ -320,21 +320,18 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
         }
     }
 
-    std::vector<std::vector<int>> estimatedClusters = euclideanClusterCustom(cloud, tree, clusterTolerance, maxSize);
+    std::vector<std::vector<int>> estimatedClusters = euclideanClusterCustom(cloud, tree, clusterTolerance, maxSize, minSize);
   	for(std::vector<int> cluster : estimatedClusters)
   	{
-        int clusterSize = cluster.size();
-        if ( clusterSize >= minSize ) {
-            typename pcl::PointCloud<PointT>::Ptr clusterCloud(new pcl::PointCloud<PointT>);
-            for (int indice: cluster)
-                clusterCloud->points.push_back(cloud->points[indice]);
+        typename pcl::PointCloud<PointT>::Ptr clusterCloud(new pcl::PointCloud<PointT>);
+        for (int indice: cluster)
+            clusterCloud->points.push_back(cloud->points[indice]);
 
-            clusterCloud->width = clusterCloud->points.size();
-            clusterCloud->height = 1; 
-            clusterCloud->is_dense = true;
+        clusterCloud->width = clusterCloud->points.size();
+        clusterCloud->height = 1; 
+        clusterCloud->is_dense = true;
 
-            clusters.push_back(clusterCloud);
-        }
+        clusters.push_back(clusterCloud);
   	}
 
     auto endTime = std::chrono::steady_clock::now();
